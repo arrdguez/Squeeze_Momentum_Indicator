@@ -1,0 +1,18 @@
+#Some directories 
+
+/__pycache__
+/doxygen
+
+
+#Files with unnow extension
+credentials.*
+nohup.*
+
+#Extension to ignore
+*.pdf
+*.dat
+*.log
+*.pyc
+*.csv
+*.html
+*.trade
