@@ -40,17 +40,15 @@ class smiHistogram():
     dfTem = dfTem.fillna(0)
 
     yAll = dfTem['source'].values.tolist()
-    x = np.array(list(range(0, length))).reshape((-1, 1))
+    x = np.array(list(range(1, length+1))).reshape((-1, 1))
 
     SMH = []
-    print(yAll)
-    print("\n")
-    print(len(yAll[999-length+1:999+1]))
+    print(x)
     #exit()
     for i in range(999,length*2,-1):
       y = np.array(yAll[i-length+1:i+1])
 
-      reg = LinearRegression(fit_intercept = False).fit(x, y)
+      reg = LinearRegression(fit_intercept = True).fit(x, y)
       SMH.append(reg.predict(x)[-1 ])
 
     tmp = [0 for _ in range(41)]
