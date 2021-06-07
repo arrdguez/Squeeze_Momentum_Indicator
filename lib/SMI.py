@@ -63,13 +63,69 @@ class smiHistogram():
 
     return SMH
 
+  def ADX(self, df):
+    last = len(df['close'])-1
+    def getCDM(df):
+      dmpos = df["high"][last-1] - df["high"][last-2]
+      dmneg = df["low"][last-2] - df["low"][last-1]
+      if dmpos > dmneg:
+        return dmpos
+      else:
+        return dmneg 
+
+    def getDMnTR(df):
+      DMpos = []
+      DMneg = []
+      TRarr = []
+      n = round(len(df)/14)
+      idx = n
+      while n <= (len(df)):
+        dmpos = df["high"][n-1] - df["high"][n-2]
+        dmneg = df["low"][n-2] - df["low"][n-1]
+            
+        DMpos.append(dmpos)
+        DMneg.append(dmneg)
+        
+        a1 = df["high"][n-1] - df["high"][n-2]
+        a2 = df["high"][n-1] - df["close"][n-2]
+        a3 = df["low"][n-1] - df["close"][n-2]
+        TRarr.append(max(a1,a2,a3))
+
+        n = idx + n
+      print(TRarr)
+      return DMpos, DMneg, TRarr
+
+    def getDI(df):
+      DMpos, DMneg, TR = getDMnTR(df)
+      CDM = getCDM(df)
+      POSsmooth = (sum(DMpos) - sum(DMpos)/len(DMpos) + CDM)
+      NEGsmooth = (sum(DMneg) - sum(DMneg)/len(DMneg) + CDM)
+        
+      DIpos = (POSsmooth / (sum(TR)/len(TR))) *100
+      DIneg = (NEGsmooth / (sum(TR)/len(TR))) *100
+
+      return DIpos, DIneg
+
+    def getADX(df):
+      DIpos, DIneg = getDI(df)
+      dx = (abs(DIpos- DIneg) / abs(DIpos + DIneg)) * 100
+        
+       
+      ADX = dx/14
+      return ADX
+
+    return(getADX(df))
+
+
+
 def main():
 
   #The next code was created to test 
   exchange = Binance()
   df = exchange.GetSymbolKlines("BTCUSDT", "1h")
   smi = smiHistogram(export = True)
-  smi.SMIH(df)
+  #smi.SMIH(df)
+  print(smi.ADX(df))
   #print(df)
 
 
