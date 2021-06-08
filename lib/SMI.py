@@ -7,6 +7,7 @@ import pandas as pd
 from aux import Binance
 from finta import TA
 
+
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -63,7 +64,71 @@ class smiHistogram():
 
     return SMH
 
+
   def ADX(self, df):
+    
+    
+    for i in range(1, len(df['close'])):
+      #df.loc[i, 'down'] = -(df.loc[i, 'low'] - df.loc[i-1, 'low'])
+      #df.loc[i, 'up'] = df.loc[i, 'high'] - df.loc[i-1, 'high']
+      temporatDF = pd.DataFrame()
+      temporatDF['up'] = df['high'].diff()
+      temporatDF['down'] = -df['low'].diff()
+      temporatDF['up'] = temporatDF['up'].fillna(0)
+      temporatDF['down'] = temporatDF['down'].fillna(0)
+    print(temporatDF['up'])
+    print(temporatDF['down'])
+    return temporatDF
+
+    def getMinusPlus():
+      print("Calculating ...")
+      temporatDF = dirmov()
+      period = 14
+      df['TR'] = TA.TR(df)
+      temporatDF['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
+      
+      for i in range(0, len(df['close'])):
+        if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
+          temporatDF.loc[i, 'plus'] = 100 * temporatDF.loc[i, 'up'] / temporatDF.loc[i, 'truerange']
+          temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
+          temporatDF['plus'] = temporatDF['plus'].fillna(0)
+        else:
+          temporatDF.loc[i, 'plus'] = 0
+
+      
+        if temporatDF.loc[i,"down"] > temporatDF.loc[i,"up"] and temporatDF.loc[i,"down"] > 0:
+          temporatDF.loc[i, 'minus'] = 100 * temporatDF.loc[i, 'down'] / temporatDF.loc[i, 'truerange']
+          temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
+          temporatDF['minus'] = temporatDF['minus'].fillna(0)
+        else:
+          temporatDF.loc[i, 'minus'] = 0
+      
+      return temporatDF
+
+    temporatDF = getMinusPlus()
+
+    print("up")
+    print(temporatDF['up'])
+    print("down")
+    print(temporatDF['down'])
+    df['TR'] = TA.TR(df)
+    df['SMMA'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
+
+    print("SMMA")
+    print(df['SMMA'])
+    print("TR")
+    print(df['TR'])
+
+    print("minus")
+    print(temporatDF['minus'])
+
+    print("plus")
+    print(temporatDF['plus'])
+
+
+
+
+  def tmp_ADX(self, df):
     last = len(df['close'])-1
     def getCDM(df):
       dmpos = df["high"][last-1] - df["high"][last-2]
@@ -125,7 +190,7 @@ def main():
   df = exchange.GetSymbolKlines("BTCUSDT", "1h")
   smi = smiHistogram(export = True)
   #smi.SMIH(df)
-  print(smi.ADX(df))
+  smi.ADX(df)
   #print(df)
 
 
