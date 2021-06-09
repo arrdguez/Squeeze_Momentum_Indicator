@@ -68,67 +68,59 @@ class smiHistogram():
   def ADX(self, df):
     print("Calculating ...")
 
-    temporatDF = pd.DataFrame()
-    temporatDF = df
+
     period = 14
     adxlen = 14
 
-
-    for i in range(1, len(df['close'])):
-      temporatDF['up'] = df['high'].diff()
-      temporatDF['down'] = -df['low'].diff()
-      temporatDF['up'] = temporatDF['up'].fillna(0)
-      temporatDF['down'] = temporatDF['down'].fillna(0)
-
-
-
-    #print("up" + str(temporatDF.loc[len(temporatDF['up'])-1,'up']) + "\t" + str(temporatDF.loc[len(temporatDF['up'])-2,'up']))
-    #print("down" + str(temporatDF.loc[len(temporatDF['down'])-1,'down']) + "\t" + str(temporatDF.loc[len(temporatDF['down'])-2,'down']))
-
+    df['up'] = df['high'].diff()
+    df['down'] = -df['low'].diff()
+    df['up'] = df['up'].fillna(0)
+    df['down'] = df['down'].fillna(0)
 
     df['TR'] = TA.TR(df)
 
-    temporatDF['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
-
-    #print("truerange" + str(temporatDF.loc[len(temporatDF['truerange'])-1,'truerange']) + "\t" + str(temporatDF.loc[len(temporatDF['truerange'])-2,'truerange']))
+    df['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
+    
+    for i in range(len(df['close'])):
+      print(str(df.loc[i,'date'])+"\t"+str(df.loc[i,'up'])+"\t"+str(df.loc[i,'down']))
 
     for i in range(0, len(df['close'])):
-      if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
-        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'up'] # / temporatDF.loc[i, 'truerange']
-        #temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
+      if df.loc[i,"up"] > df.loc[i,"down"] and df.loc[i,"up"] > 0:
+        df.loc[i, 'plus'] = df.loc[i, 'up'] # / df.loc[i, 'truerange']
+        #df.loc[i, 'plus'] = df.loc[i, 'plus']
       else:
-        temporatDF.loc[i, 'plus'] = 0
+        df.loc[i, 'plus'] = 0
 
-      if temporatDF.loc[i,"down"] > temporatDF.loc[i,"up"] and temporatDF.loc[i,"down"] > 0:
-        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'down'] #/ temporatDF.loc[i, 'truerange']
-        #temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
+      if df.loc[i,"down"] > df.loc[i,"up"] and df.loc[i,"down"] > 0:
+        df.loc[i, 'minus'] = df.loc[i, 'down'] #/ df.loc[i, 'truerange']
+        #df.loc[i, 'minus'] = df.loc[i, 'minus']
       else:
-        temporatDF.loc[i, 'minus'] = 0
+        df.loc[i, 'minus'] = 0
 
-    temporatDF['plus'] = temporatDF['plus'].fillna(0)
-    temporatDF['minus'] = temporatDF['minus'].fillna(0)
+    df['plus'] = df['plus'].fillna(0)
+    df['minus'] = df['minus'].fillna(0)
     
-    temporatDF['plus'] = TA.SMMA(temporatDF, period=14, column='plus', adjust=True)
-    temporatDF['minus'] = TA.SMMA(temporatDF, period=14, column='minus', adjust=True)
+    df['plus'] = TA.SMMA(df, period=14, column='plus', adjust=True)
+    df['minus'] = TA.SMMA(df, period=14, column='minus', adjust=True)
     
-    temporatDF['plus'] = 100 * temporatDF['plus'] / temporatDF['truerange']
-    temporatDF['minus'] = 100 * temporatDF['minus'] / temporatDF['truerange']
+    df['plus'] = 100 * df['plus'] / df['truerange']
+    df['minus'] = 100 * df['minus'] / df['truerange']
 
-    #print("plus  " + str(temporatDF.loc[len(temporatDF['plus'])-1,'plus']) + "\t" + str(temporatDF.loc[len(temporatDF['plus'])-2,'plus']))
-    #print("minus " + str(temporatDF.loc[len(temporatDF['minus'])-1,'minus']) + "\t" + str(temporatDF.loc[len(temporatDF['minus'])-2,'minus']))
+   # for i in range(len(df['close'])):
+   #   print(str(df.loc[i,'date'])+"\t"+str(df.loc[i,'minus'])+"\t"+str(df.loc[i,'plus']))
 
-    temporatDF['sum'] = temporatDF['minus'] + temporatDF['plus']
+    df['sum'] = df['minus'] + df['plus']
 
-    for i in range(0, len(temporatDF['sum'])):
-      if float(temporatDF.loc[i,'sum']) == 0:
-        temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / 1
+    for i in range(0, len(df['sum'])):
+      if float(df.loc[i,'sum']) == 0:
+        df.loc[i,'tmp'] = abs(df.loc[i,'plus'] - df.loc[i,'minus']) / 1
       else:
-        temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / temporatDF.loc[i,'sum'] 
+        df.loc[i,'tmp'] = abs(df.loc[i,'plus'] - df.loc[i,'minus']) / df.loc[i,'sum'] 
 
-    #print(temporatDF['tmp'])
-    temporatDF['ADX'] =100 * TA.SMMA(temporatDF, period=adxlen, column='tmp', adjust=True)
-    print(temporatDF['ADX'])
-    return(temporatDF['ADX'])
+    #print(df['tmp'])
+    df['ADX'] =100 * TA.SMMA(df, period=adxlen, column='tmp', adjust=True)
+    print(df['ADX'])
+    return(df['ADX'])
 
 """
 adx(dilen, adxlen) => 
