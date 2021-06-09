@@ -66,65 +66,58 @@ class smiHistogram():
 
 
   def ADX(self, df):
-    
-    
+    print("Calculating ...")
+
+    temporatDF = pd.DataFrame()
+    temporatDF = df
+    period = 14
+
+
     for i in range(1, len(df['close'])):
-      #df.loc[i, 'down'] = -(df.loc[i, 'low'] - df.loc[i-1, 'low'])
-      #df.loc[i, 'up'] = df.loc[i, 'high'] - df.loc[i-1, 'high']
-      temporatDF = pd.DataFrame()
       temporatDF['up'] = df['high'].diff()
       temporatDF['down'] = -df['low'].diff()
       temporatDF['up'] = temporatDF['up'].fillna(0)
       temporatDF['down'] = temporatDF['down'].fillna(0)
-    print(temporatDF['up'])
-    print(temporatDF['down'])
-    return temporatDF
 
-    def getMinusPlus():
-      print("Calculating ...")
-      temporatDF = dirmov()
-      period = 14
-      df['TR'] = TA.TR(df)
-      temporatDF['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
-      
-      for i in range(0, len(df['close'])):
-        if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
-          temporatDF.loc[i, 'plus'] = 100 * temporatDF.loc[i, 'up'] / temporatDF.loc[i, 'truerange']
-          temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
-          temporatDF['plus'] = temporatDF['plus'].fillna(0)
-        else:
-          temporatDF.loc[i, 'plus'] = 0
 
-      
-        if temporatDF.loc[i,"down"] > temporatDF.loc[i,"up"] and temporatDF.loc[i,"down"] > 0:
-          temporatDF.loc[i, 'minus'] = 100 * temporatDF.loc[i, 'down'] / temporatDF.loc[i, 'truerange']
-          temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
-          temporatDF['minus'] = temporatDF['minus'].fillna(0)
-        else:
-          temporatDF.loc[i, 'minus'] = 0
-      
-      return temporatDF
 
-    temporatDF = getMinusPlus()
+    print("up" + str(temporatDF.loc[len(temporatDF['up'])-1,'up']) + "\t" + str(temporatDF.loc[len(temporatDF['up'])-2,'up']))
+    print("down" + str(temporatDF.loc[len(temporatDF['down'])-1,'down']) + "\t" + str(temporatDF.loc[len(temporatDF['down'])-2,'down']))
 
-    print("up")
-    print(temporatDF['up'])
-    print("down")
-    print(temporatDF['down'])
+
     df['TR'] = TA.TR(df)
-    df['SMMA'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
 
-    print("SMMA")
-    print(df['SMMA'])
-    print("TR")
-    print(df['TR'])
+    temporatDF['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
 
-    print("minus")
-    print(temporatDF['minus'])
+    print("truerange" + str(temporatDF.loc[len(temporatDF['truerange'])-1,'truerange']) + "\t" + str(temporatDF.loc[len(temporatDF['truerange'])-2,'truerange']))
 
-    print("plus")
-    print(temporatDF['plus'])
+#plus = fixnan(100 * rma(up > down and up > 0 ? up : 0, len) / truerange)
+#  minus = fixnan(100 * rma(down > up and down > 0 ? down : 0, len) / truerange)
 
+    for i in range(0, len(df['close'])):
+
+      if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
+        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'up'] / temporatDF.loc[i, 'truerange']
+        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
+        temporatDF['plus'] = temporatDF['plus'].fillna(0)
+      else:
+        temporatDF.loc[i, 'plus'] = 0
+
+      
+      if temporatDF.loc[i,"down"] > temporatDF.loc[i,"up"] and temporatDF.loc[i,"down"] > 0:
+        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'down'] / temporatDF.loc[i, 'truerange']
+        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
+        temporatDF['minus'] = temporatDF['minus'].fillna(0)
+      else:
+        temporatDF.loc[i, 'minus'] = 0
+    temporatDF['plus'] = TA.SMMA(temporatDF, period=14, column='plus', adjust=True)
+    temporatDF['minus'] = TA.SMMA(temporatDF, period=14, column='minus', adjust=True)
+    
+    print("plus  " + str(temporatDF.loc[len(temporatDF['plus'])-1,'plus']) + "\t" + str(temporatDF.loc[len(temporatDF['plus'])-2,'plus']))
+    print("minus " + str(temporatDF.loc[len(temporatDF['minus'])-1,'minus']) + "\t" + str(temporatDF.loc[len(temporatDF['minus'])-2,'minus']))
+
+
+    print(temporatDF)
 
 
 
