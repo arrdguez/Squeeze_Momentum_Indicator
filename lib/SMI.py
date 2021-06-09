@@ -126,9 +126,9 @@ class smiHistogram():
         temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / temporatDF.loc[i,'sum'] 
 
     print(temporatDF['tmp'])
-    temporatDF['tmp'] =100 * TA.SMMA(temporatDF, period=adxlen, column='tmp', adjust=True)
+    temporatDF['ADX'] =100 * TA.SMMA(temporatDF, period=adxlen, column='tmp', adjust=True)
     print(temporatDF['tmp'])
-    print(df)
+    return(temporatDF['ADX'])
 
 """
 adx(dilen, adxlen) => 
