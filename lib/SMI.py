@@ -71,6 +71,7 @@ class smiHistogram():
     temporatDF = pd.DataFrame()
     temporatDF = df
     period = 14
+    adxlen = 14
 
 
     for i in range(1, len(df['close'])):
@@ -91,96 +92,57 @@ class smiHistogram():
 
     print("truerange" + str(temporatDF.loc[len(temporatDF['truerange'])-1,'truerange']) + "\t" + str(temporatDF.loc[len(temporatDF['truerange'])-2,'truerange']))
 
-#plus = fixnan(100 * rma(up > down and up > 0 ? up : 0, len) / truerange)
-#  minus = fixnan(100 * rma(down > up and down > 0 ? down : 0, len) / truerange)
-
     for i in range(0, len(df['close'])):
-
       if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
-        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'up'] / temporatDF.loc[i, 'truerange']
-        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
-        temporatDF['plus'] = temporatDF['plus'].fillna(0)
+        temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'up'] # / temporatDF.loc[i, 'truerange']
+        #temporatDF.loc[i, 'plus'] = temporatDF.loc[i, 'plus']
       else:
         temporatDF.loc[i, 'plus'] = 0
 
-      
       if temporatDF.loc[i,"down"] > temporatDF.loc[i,"up"] and temporatDF.loc[i,"down"] > 0:
-        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'down'] / temporatDF.loc[i, 'truerange']
-        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
-        temporatDF['minus'] = temporatDF['minus'].fillna(0)
+        temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'down'] #/ temporatDF.loc[i, 'truerange']
+        #temporatDF.loc[i, 'minus'] = temporatDF.loc[i, 'minus']
       else:
         temporatDF.loc[i, 'minus'] = 0
+
+    temporatDF['plus'] = temporatDF['plus'].fillna(0)
+    temporatDF['minus'] = temporatDF['minus'].fillna(0)
+    
     temporatDF['plus'] = TA.SMMA(temporatDF, period=14, column='plus', adjust=True)
     temporatDF['minus'] = TA.SMMA(temporatDF, period=14, column='minus', adjust=True)
     
+    temporatDF['plus'] = 100 * temporatDF['plus'] / temporatDF['truerange']
+    temporatDF['minus'] = 100 * temporatDF['minus'] / temporatDF['truerange']
+
     print("plus  " + str(temporatDF.loc[len(temporatDF['plus'])-1,'plus']) + "\t" + str(temporatDF.loc[len(temporatDF['plus'])-2,'plus']))
     print("minus " + str(temporatDF.loc[len(temporatDF['minus'])-1,'minus']) + "\t" + str(temporatDF.loc[len(temporatDF['minus'])-2,'minus']))
 
+    temporatDF['sum'] = temporatDF['minus'] + temporatDF['plus']
 
-    print(temporatDF)
-
-
-
-  def tmp_ADX(self, df):
-    last = len(df['close'])-1
-    def getCDM(df):
-      dmpos = df["high"][last-1] - df["high"][last-2]
-      dmneg = df["low"][last-2] - df["low"][last-1]
-      if dmpos > dmneg:
-        return dmpos
+    for i in range(0, len(temporatDF['sum'])):
+      if float(temporatDF.loc[i,'sum']) == 0:
+        temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / 1
       else:
-        return dmneg 
+        temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / temporatDF.loc[i,'sum'] 
 
-    def getDMnTR(df):
-      DMpos = []
-      DMneg = []
-      TRarr = []
-      n = round(len(df)/14)
-      idx = n
-      while n <= (len(df)):
-        dmpos = df["high"][n-1] - df["high"][n-2]
-        dmneg = df["low"][n-2] - df["low"][n-1]
-            
-        DMpos.append(dmpos)
-        DMneg.append(dmneg)
-        
-        a1 = df["high"][n-1] - df["high"][n-2]
-        a2 = df["high"][n-1] - df["close"][n-2]
-        a3 = df["low"][n-1] - df["close"][n-2]
-        TRarr.append(max(a1,a2,a3))
+    print(temporatDF['tmp'])
+    temporatDF['tmp'] =100 * TA.SMMA(temporatDF, period=adxlen, column='tmp', adjust=True)
+    print(temporatDF['tmp'])
+    print(df)
 
-        n = idx + n
-      print(TRarr)
-      return DMpos, DMneg, TRarr
-
-    def getDI(df):
-      DMpos, DMneg, TR = getDMnTR(df)
-      CDM = getCDM(df)
-      POSsmooth = (sum(DMpos) - sum(DMpos)/len(DMpos) + CDM)
-      NEGsmooth = (sum(DMneg) - sum(DMneg)/len(DMneg) + CDM)
-        
-      DIpos = (POSsmooth / (sum(TR)/len(TR))) *100
-      DIneg = (NEGsmooth / (sum(TR)/len(TR))) *100
-
-      return DIpos, DIneg
-
-    def getADX(df):
-      DIpos, DIneg = getDI(df)
-      dx = (abs(DIpos- DIneg) / abs(DIpos + DIneg)) * 100
-        
-       
-      ADX = dx/14
-      return ADX
-
-    return(getADX(df))
-
-
+"""
+adx(dilen, adxlen) => 
+  [plus, minus] = dirmov(dilen)
+  sum = plus + minus
+  adx = 100 * rma(abs(plus - minus) / (sum == 0 ? 1 : sum), adxlen)
+  [adx, plus, minus]
+"""
 
 def main():
 
   #The next code was created to test 
   exchange = Binance()
-  df = exchange.GetSymbolKlines("BTCUSDT", "1h")
+  df = exchange.GetSymbolKlines("BTCUSDT", "1w")
   smi = smiHistogram(export = True)
   #smi.SMIH(df)
   smi.ADX(df)
