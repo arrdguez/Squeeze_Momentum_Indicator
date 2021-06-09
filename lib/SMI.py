@@ -46,7 +46,7 @@ class smiHistogram():
     SMH = []
     print(x)
     #exit()
-    for i in range(999,length*2,-1):
+    for i in range(len(dfTem['close'])-1,length*2,-1):
       y = np.array(yAll[i-length+1:i+1])
 
       reg = LinearRegression(fit_intercept = True).fit(x, y)
