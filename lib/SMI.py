@@ -82,15 +82,15 @@ class smiHistogram():
 
 
 
-    print("up" + str(temporatDF.loc[len(temporatDF['up'])-1,'up']) + "\t" + str(temporatDF.loc[len(temporatDF['up'])-2,'up']))
-    print("down" + str(temporatDF.loc[len(temporatDF['down'])-1,'down']) + "\t" + str(temporatDF.loc[len(temporatDF['down'])-2,'down']))
+    #print("up" + str(temporatDF.loc[len(temporatDF['up'])-1,'up']) + "\t" + str(temporatDF.loc[len(temporatDF['up'])-2,'up']))
+    #print("down" + str(temporatDF.loc[len(temporatDF['down'])-1,'down']) + "\t" + str(temporatDF.loc[len(temporatDF['down'])-2,'down']))
 
 
     df['TR'] = TA.TR(df)
 
     temporatDF['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
 
-    print("truerange" + str(temporatDF.loc[len(temporatDF['truerange'])-1,'truerange']) + "\t" + str(temporatDF.loc[len(temporatDF['truerange'])-2,'truerange']))
+    #print("truerange" + str(temporatDF.loc[len(temporatDF['truerange'])-1,'truerange']) + "\t" + str(temporatDF.loc[len(temporatDF['truerange'])-2,'truerange']))
 
     for i in range(0, len(df['close'])):
       if temporatDF.loc[i,"up"] > temporatDF.loc[i,"down"] and temporatDF.loc[i,"up"] > 0:
@@ -114,8 +114,8 @@ class smiHistogram():
     temporatDF['plus'] = 100 * temporatDF['plus'] / temporatDF['truerange']
     temporatDF['minus'] = 100 * temporatDF['minus'] / temporatDF['truerange']
 
-    print("plus  " + str(temporatDF.loc[len(temporatDF['plus'])-1,'plus']) + "\t" + str(temporatDF.loc[len(temporatDF['plus'])-2,'plus']))
-    print("minus " + str(temporatDF.loc[len(temporatDF['minus'])-1,'minus']) + "\t" + str(temporatDF.loc[len(temporatDF['minus'])-2,'minus']))
+    #print("plus  " + str(temporatDF.loc[len(temporatDF['plus'])-1,'plus']) + "\t" + str(temporatDF.loc[len(temporatDF['plus'])-2,'plus']))
+    #print("minus " + str(temporatDF.loc[len(temporatDF['minus'])-1,'minus']) + "\t" + str(temporatDF.loc[len(temporatDF['minus'])-2,'minus']))
 
     temporatDF['sum'] = temporatDF['minus'] + temporatDF['plus']
 
@@ -125,9 +125,9 @@ class smiHistogram():
       else:
         temporatDF.loc[i,'tmp'] = abs(temporatDF.loc[i,'plus'] - temporatDF.loc[i,'minus']) / temporatDF.loc[i,'sum'] 
 
-    print(temporatDF['tmp'])
+    #print(temporatDF['tmp'])
     temporatDF['ADX'] =100 * TA.SMMA(temporatDF, period=adxlen, column='tmp', adjust=True)
-    print(temporatDF['tmp'])
+    print(temporatDF['ADX'])
     return(temporatDF['ADX'])
 
 """
@@ -142,7 +142,7 @@ def main():
 
   #The next code was created to test 
   exchange = Binance()
-  df = exchange.GetSymbolKlines("BTCUSDT", "1w")
+  df = exchange.GetSymbolKlines("BTCUSDT", "1h")
   smi = smiHistogram(export = True)
   #smi.SMIH(df)
   smi.ADX(df)
