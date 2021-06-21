@@ -44,7 +44,7 @@ class smiHistogram():
     x = np.array(list(range(1, length+1))).reshape((-1, 1))
 
     SMH = []
-    print(x)
+    #print(x)
     #exit()
     for i in range(len(dfTem['close'])-1,length*2,-1):
       y = np.array(yAll[i-length+1:i+1])
@@ -56,7 +56,7 @@ class smiHistogram():
     SMH = SMH + tmp
     SMH.reverse()
     dfTem['SMH'] = SMH
-    print(dfTem)
+    #print(dfTem)
     if self.setupConfig['export']:
       print("Exporting data ...")
       dfTem.to_csv("./dfTem.csv", sep='\t')
@@ -66,7 +66,7 @@ class smiHistogram():
 
 
   def ADX(self, df):
-    print("Calculating ...")
+    print("Calculating ADX...")
 
 
     period = 14
@@ -80,9 +80,7 @@ class smiHistogram():
     df['TR'] = TA.TR(df)
 
     df['truerange'] = TA.SMMA( df, period = 14, column = "TR", adjust = True)
-    
-    for i in range(len(df['close'])):
-      print(str(df.loc[i,'date'])+"\t"+str(df.loc[i,'up'])+"\t"+str(df.loc[i,'down']))
+    df['date']= pd.to_datetime(df['date'])
 
     for i in range(0, len(df['close'])):
       if df.loc[i,"up"] > df.loc[i,"down"] and df.loc[i,"up"] > 0:
@@ -119,7 +117,7 @@ class smiHistogram():
 
     #print(df['tmp'])
     df['ADX'] =100 * TA.SMMA(df, period=adxlen, column='tmp', adjust=True)
-    print(df['ADX'])
+    #print(df['ADX'])
     return(df['ADX'])
 
 """
@@ -134,10 +132,10 @@ def main():
 
   #The next code was created to test 
   exchange = Binance()
-  df = exchange.GetSymbolKlines("BTCUSDT", "1h")
+  df = exchange.GetSymbolKlines("BTCUSDT", "1h", 150)
   smi = smiHistogram(export = True)
-  #smi.SMIH(df)
-  smi.ADX(df)
+  print(smi.SMIH(df))
+  print(smi.ADX(df))
   #print(df)
 
 
