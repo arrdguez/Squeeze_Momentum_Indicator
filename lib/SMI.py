@@ -59,7 +59,7 @@ class smiHistogram():
     #print(dfTem)
     if self.setupConfig['export']:
       print("Exporting data ...")
-      dfTem.to_csv("./dfTem.csv", sep='\t')
+      dfTem['SMH'].to_csv("./smh.csv", sep='\t')
       df.to_csv("./df.csv", sep='\t')
 
     return SMH
@@ -118,6 +118,7 @@ class smiHistogram():
     #print(df['tmp'])
     df['ADX'] =100 * TA.SMMA(df, period=adxlen, column='tmp', adjust=True)
     #print(df['ADX'])
+    df['ADX'].to_csv("./adx.csv", sep='\t')
     return(df['ADX'])
 
 """
@@ -132,10 +133,12 @@ def main():
 
   #The next code was created to test 
   exchange = Binance()
-  df = exchange.GetSymbolKlines("BTCUSDT", "1h", 150)
+  df = exchange.GetSymbolKlines("BTCUSDT", "4h")
   smi = smiHistogram(export = True)
-  print(smi.SMIH(df))
-  print(smi.ADX(df))
+  smih = smi.SMIH(df)
+  adx = smi.ADX(df)
+  print(type(smi.SMIH(df)))
+  print(type(smi.ADX(df)))
   #print(df)
 
 
